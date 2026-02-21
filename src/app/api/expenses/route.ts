@@ -35,7 +35,7 @@ export async function DELETE(request: Request) {
         const { error } = await supabase
             .from('expenses')
             .delete()
-            .neq('id', 'placeholder'); // Delete all by non-matching condition or just .delete() if permitted
+            .neq('id', '00000000-0000-0000-0000-000000000000'); // Valid UUID string for ALL deletion filter
 
         if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     } else if (id) {
