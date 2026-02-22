@@ -6,4 +6,5 @@ export interface Expense {
   payer: Payer;
   amount: number;
   description: string;
+  type?: 'expense' | 'settlement';
 }

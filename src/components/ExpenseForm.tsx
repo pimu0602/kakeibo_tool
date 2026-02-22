@@ -4,7 +4,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Expense, Payer } from '@/types';
 
 interface ExpenseFormProps {
@@ -43,13 +42,23 @@ export function ExpenseForm({ onAdd }: ExpenseFormProps) {
     return (
         <Card>
             <CardHeader className="pb-3 text-center">
-                <CardTitle className="text-lg">内容を入力</CardTitle>
-                <Tabs value={type} onValueChange={(v) => setType(v as 'expense' | 'settlement')} className="w-full mt-2">
-                    <TabsList className="grid w-full grid-cols-2">
-                        <TabsTrigger value="expense">支出 (割り勘)</TabsTrigger>
-                        <TabsTrigger value="settlement">清算 (返金)</TabsTrigger>
-                    </TabsList>
-                </Tabs>
+                <CardTitle className="text-lg mb-4">内容を入力</CardTitle>
+                <div className="flex p-1 bg-gray-100 rounded-lg">
+                    <button
+                        type="button"
+                        onClick={() => setType('expense')}
+                        className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${type === 'expense' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+                    >
+                        支出 (割り勘)
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setType('settlement')}
+                        className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${type === 'settlement' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+                    >
+                        清算 (返金)
+                    </button>
+                </div>
             </CardHeader>
             <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-4">
