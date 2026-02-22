@@ -6,13 +6,17 @@ interface SummaryProps {
 }
 
 export function Summary({ expenses }: SummaryProps) {
+    console.log('Summary Render - expenses:', expenses);
+
     // 支出（通常）の合計
     const hiromuPaid = expenses
         .filter(e => (e.type === 'expense' || !e.type) && e.payer === 'ひろむ')
-        .reduce((acc, cur) => acc + cur.amount, 0);
+        .reduce((acc, cur) => acc + Number(cur.amount), 0);
     const chikaPaid = expenses
         .filter(e => (e.type === 'expense' || !e.type) && e.payer === 'ちか')
-        .reduce((acc, cur) => acc + cur.amount, 0);
+        .reduce((acc, cur) => acc + Number(cur.amount), 0);
+
+    console.log('Paid logic - hiromuPaid:', hiromuPaid, 'chikaPaid:', chikaPaid);
 
     const totalExpenses = hiromuPaid + chikaPaid;
     const splitAmount = Math.round(totalExpenses / 2);
@@ -21,18 +25,20 @@ export function Summary({ expenses }: SummaryProps) {
     let hiromuBalance = hiromuPaid - splitAmount;
 
     // 清算（返金）データの反映
-    // ひろむがちかに返した -> ひろむの「支払い」が増えるのと同義
-    // ちかがひろむに返した -> ちかの「支払い」が増えるのと同義
     const hiromuRepaid = expenses
         .filter(e => e.type === 'settlement' && e.payer === 'ひろむ')
-        .reduce((acc, cur) => acc + cur.amount, 0);
+        .reduce((acc, cur) => acc + Number(cur.amount), 0);
     const chikaRepaid = expenses
         .filter(e => e.type === 'settlement' && e.payer === 'ちか')
-        .reduce((acc, cur) => acc + cur.amount, 0);
+        .reduce((acc, cur) => acc + Number(cur.amount), 0);
+
+    console.log('Settlement logic - hiromuRepaid:', hiromuRepaid, 'chikaRepaid:', chikaRepaid);
 
     // 最終的な貸し借り額
-    // hiromuBalanceに「ちかから貰った分(+chikaRepaid)」を足し、「ひろむが返した分(-hiromuRepaid)」を引く
-    const finalBalance = hiromuBalance + chikaRepaid - hiromuRepaid;
+    // hiromuBalanceに「ひろむが返した分(+hiromuRepaid)」を足し、「ちかから返してもらった分(-chikaRepaid)」を引く
+    const finalBalance = hiromuBalance + hiromuRepaid - chikaRepaid;
+
+    console.log('Final calculations - hiromuBalance:', hiromuBalance, 'finalBalance:', finalBalance);
 
     const amountToPay = Math.abs(finalBalance);
     const payer = finalBalance > 0 ? 'ちか' : 'ひろむ';

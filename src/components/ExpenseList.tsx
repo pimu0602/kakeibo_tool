@@ -72,7 +72,7 @@ export function ExpenseList({ expenses, onDelete, onClearAll }: ExpenseListProps
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    <span className="font-bold text-xl">¥{expense.amount.toLocaleString()}</span>
+                                    <span className="font-bold text-xl">¥{Number(expense.amount).toLocaleString()}</span>
                                     <Button variant="ghost" size="icon" className="h-10 w-10" onClick={() => onDelete(expense.id)}>
                                         <Trash2 className="h-5 w-5 text-red-500" />
                                     </Button>

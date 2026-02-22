@@ -26,7 +26,11 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        data-version="fix-v5-applied"
       >
+        <div style={{ position: 'fixed', bottom: 0, right: 0, background: 'red', color: 'white', fontSize: '10px', zIndex: 9999, padding: '2px 5px' }}>
+          V5 FIX APPLIED
+        </div>
         {children}
       </body>
     </html>

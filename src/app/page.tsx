@@ -81,7 +81,12 @@ export default function Home() {
         <Summary expenses={expenses} />
         <ExpenseForm onAdd={addExpense} />
         <ExpenseList expenses={expenses} onDelete={deleteExpense} onClearAll={clearAllExpenses} />
+
+        <div className="text-[10px] text-gray-400 text-center mt-8">
+          Last Check: {new Date().toLocaleString('ja-JP')} (Fix v4 applied)
+        </div>
       </div>
     </main>
+
   );
 }
