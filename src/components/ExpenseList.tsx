@@ -61,8 +61,15 @@ export function ExpenseList({ expenses, onDelete, onClearAll }: ExpenseListProps
                                         <span className={`px-2 py-0.5 rounded text-xs text-white ${expense.payer === 'ひろむ' ? 'bg-blue-500' : 'bg-pink-500'}`}>
                                             {expense.payer}
                                         </span>
+                                        {expense.type === 'settlement' && (
+                                            <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs font-bold border border-green-200">
+                                                清算
+                                            </span>
+                                        )}
                                     </div>
-                                    <div className="font-medium text-lg">{expense.description}</div>
+                                    <div className={`font-medium text-lg ${expense.type === 'settlement' ? 'text-green-700' : ''}`}>
+                                        {expense.description}
+                                    </div>
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <span className="font-bold text-xl">¥{expense.amount.toLocaleString()}</span>
