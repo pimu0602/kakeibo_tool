@@ -52,18 +52,18 @@ export function Summary({ expenses }: SummaryProps) {
             <CardContent>
                 <div className="grid grid-cols-2 gap-4 mb-4 text-center">
                     <div className="p-2 bg-white rounded border">
-                        <div className="text-xs text-gray-500 mb-1">ひろむ支払</div>
+                        <div className="text-xs text-gray-500 mb-1">ひろむ支出</div>
                         <div className="text-lg font-bold text-blue-600">¥{hiromuPaid.toLocaleString()}</div>
                     </div>
                     <div className="p-2 bg-white rounded border">
-                        <div className="text-xs text-gray-500 mb-1">ちか支払</div>
+                        <div className="text-xs text-gray-500 mb-1">ちか支出</div>
                         <div className="text-lg font-bold text-pink-600">¥{chikaPaid.toLocaleString()}</div>
                     </div>
                 </div>
 
                 <div className="border-t pt-4 text-center">
                     <div className="flex justify-between text-sm text-gray-500 mb-4 px-4">
-                        <span>合計: {totalExpenses.toLocaleString()}円</span>
+                        <span>支出合計: {totalExpenses.toLocaleString()}円</span>
                         <span>1人あたり: {splitAmount.toLocaleString()}円</span>
                     </div>
 
