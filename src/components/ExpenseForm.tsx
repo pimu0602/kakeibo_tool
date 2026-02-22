@@ -6,6 +6,23 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Expense, Payer } from '@/types';
 
+const PRESET_ITEMS = [
+    { label: 'シャンプー', amount: 2300 },
+    { label: '歯磨き', amount: 1199 },
+    { label: 'モットパウダー', amount: 3300 },
+    { label: '石鹸', amount: 700 },
+    { label: 'お茶', amount: 2520 },
+    { label: 'プロテクションサンスクリーン', amount: 4400 },
+    { label: 'プロテイン', amount: 4023 },
+    { label: '日焼け止め', amount: 3664 },
+    { label: '天恵ローション', amount: 9600 },
+    { label: 'ヒカリノシオ', amount: 985 },
+    { label: 'ワコナル', amount: 2657 },
+    { label: 'オサケデビューティー', amount: 1944 },
+    { label: 'トトクレ', amount: 3350 },
+    { label: 'トトスイ', amount: 3350 },
+];
+
 interface ExpenseFormProps {
     onAdd: (expense: Expense) => void;
 }
@@ -16,6 +33,22 @@ export function ExpenseForm({ onAdd }: ExpenseFormProps) {
     const [amount, setAmount] = useState('');
     const [description, setDescription] = useState('');
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+    const [isCustom, setIsCustom] = useState(false);
+
+    const handlePresetSelect = (value: string) => {
+        if (value === '__custom__') {
+            setIsCustom(true);
+            setDescription('');
+            setAmount('');
+            return;
+        }
+        setIsCustom(false);
+        const preset = PRESET_ITEMS.find(p => p.label === value);
+        if (preset) {
+            setDescription(preset.label);
+            setAmount(String(preset.amount));
+        }
+    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -37,6 +70,7 @@ export function ExpenseForm({ onAdd }: ExpenseFormProps) {
         onAdd(newExpense);
         setAmount('');
         setDescription('');
+        setIsCustom(false);
     };
 
     return (
@@ -90,6 +124,35 @@ export function ExpenseForm({ onAdd }: ExpenseFormProps) {
                         </div>
                     </div>
 
+                    {type === 'expense' && (
+                        <div className="space-y-2">
+                            <Label className="text-base font-bold">内容</Label>
+                            <Select onValueChange={handlePresetSelect} value={isCustom ? '__custom__' : description}>
+                                <SelectTrigger className="text-lg py-6">
+                                    <SelectValue placeholder="選択してください" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {PRESET_ITEMS.map((item) => (
+                                        <SelectItem key={item.label} value={item.label}>
+                                            {item.label}（¥{item.amount.toLocaleString()}）
+                                        </SelectItem>
+                                    ))}
+                                    <SelectItem value="__custom__">✏️ その他（自由入力）</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            {isCustom && (
+                                <Input
+                                    id="description"
+                                    placeholder="内容を入力"
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    required
+                                    className="text-lg py-6 mt-2"
+                                />
+                            )}
+                        </div>
+                    )}
+
                     <div className="space-y-2">
                         <Label htmlFor="price" className="text-base font-bold">金額</Label>
                         <Input
@@ -102,20 +165,6 @@ export function ExpenseForm({ onAdd }: ExpenseFormProps) {
                             className="text-lg py-6 border-2 focus:border-primary"
                         />
                     </div>
-
-                    {type === 'expense' && (
-                        <div className="space-y-2">
-                            <Label htmlFor="description" className="text-base">内容</Label>
-                            <Input
-                                id="description"
-                                placeholder="例: スーパー、夕食代"
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                                required
-                                className="text-lg py-6"
-                            />
-                        </div>
-                    )}
 
                     <Button type="submit" className={`w-full py-7 text-xl font-bold ${type === 'settlement' ? 'bg-green-600 hover:bg-green-700' : ''}`}>
                         {type === 'expense' ? '支出を追加' : '返金を記録'}
