@@ -34,15 +34,18 @@ export function ExpenseForm({ onAdd }: ExpenseFormProps) {
     const [description, setDescription] = useState('');
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
     const [isCustom, setIsCustom] = useState(false);
+    const [isPreset, setIsPreset] = useState(false);
 
     const handlePresetSelect = (value: string) => {
         if (value === '__custom__') {
             setIsCustom(true);
+            setIsPreset(false);
             setDescription('');
             setAmount('');
             return;
         }
         setIsCustom(false);
+        setIsPreset(true);
         const preset = PRESET_ITEMS.find(p => p.label === value);
         if (preset) {
             setDescription(preset.label);
@@ -54,9 +57,17 @@ export function ExpenseForm({ onAdd }: ExpenseFormProps) {
         e.preventDefault();
         if (!amount || (type === 'expense' && !description)) return;
 
-        const finalDescription = type === 'settlement'
-            ? `${payer}から${payer === 'ひろむ' ? 'ちか' : 'ひろむ'}へ返金`
-            : description;
+        // プリセット → 清算（全額相手負担）として記録
+        const actualType = isPreset ? 'settlement' : type;
+
+        let finalDescription: string;
+        if (isPreset) {
+            finalDescription = description; // プリセットのラベルをそのまま使用
+        } else if (type === 'settlement') {
+            finalDescription = `${payer}から${payer === 'ひろむ' ? 'ちか' : 'ひろむ'}へ返金`;
+        } else {
+            finalDescription = description;
+        }
 
         const newExpense: Expense = {
             id: crypto.randomUUID(),
@@ -64,13 +75,14 @@ export function ExpenseForm({ onAdd }: ExpenseFormProps) {
             payer,
             amount: Number(amount),
             description: finalDescription,
-            type,
+            type: actualType,
         };
 
         onAdd(newExpense);
         setAmount('');
         setDescription('');
         setIsCustom(false);
+        setIsPreset(false);
     };
 
     return (
