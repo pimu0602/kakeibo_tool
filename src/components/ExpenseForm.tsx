@@ -28,24 +28,20 @@ interface ExpenseFormProps {
 }
 
 export function ExpenseForm({ onAdd }: ExpenseFormProps) {
-    const [type, setType] = useState<'expense' | 'settlement'>('expense');
     const [payer, setPayer] = useState<Payer>('ひろむ');
     const [amount, setAmount] = useState('');
     const [description, setDescription] = useState('');
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
     const [isCustom, setIsCustom] = useState(false);
-    const [isPreset, setIsPreset] = useState(false);
 
     const handlePresetSelect = (value: string) => {
         if (value === '__custom__') {
             setIsCustom(true);
-            setIsPreset(false);
             setDescription('');
             setAmount('');
             return;
         }
         setIsCustom(false);
-        setIsPreset(true);
         const preset = PRESET_ITEMS.find(p => p.label === value);
         if (preset) {
             setDescription(preset.label);
@@ -55,58 +51,27 @@ export function ExpenseForm({ onAdd }: ExpenseFormProps) {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!amount || (type === 'expense' && !description)) return;
-
-        // プリセット → 清算（全額相手負担）として記録
-        // 選択した人が相手に支払う = payerを反転して記録
-        const actualType = isPreset ? 'settlement' : type;
-        const actualPayer = isPreset ? (payer === 'ひろむ' ? 'ちか' : 'ひろむ') as Payer : payer;
-
-        let finalDescription: string;
-        if (isPreset) {
-            finalDescription = description; // プリセットのラベルをそのまま使用
-        } else if (type === 'settlement') {
-            finalDescription = `${payer}から${payer === 'ひろむ' ? 'ちか' : 'ひろむ'}へ返金`;
-        } else {
-            finalDescription = description;
-        }
+        if (!amount || !description) return;
 
         const newExpense: Expense = {
             id: crypto.randomUUID(),
             date,
-            payer: actualPayer,
+            payer,
             amount: Number(amount),
-            description: finalDescription,
-            type: actualType,
+            description,
+            type: 'settlement',
         };
 
         onAdd(newExpense);
         setAmount('');
         setDescription('');
         setIsCustom(false);
-        setIsPreset(false);
     };
 
     return (
         <Card>
             <CardHeader className="pb-3 text-center">
-                <CardTitle className="text-lg mb-4">内容を入力</CardTitle>
-                <div className="flex p-1 bg-gray-100 rounded-lg">
-                    <button
-                        type="button"
-                        onClick={() => setType('expense')}
-                        className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${type === 'expense' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
-                    >
-                        支出 (割り勘)
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => setType('settlement')}
-                        className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${type === 'settlement' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
-                    >
-                        清算 (返金)
-                    </button>
-                </div>
+                <CardTitle className="text-lg mb-2">内容を入力</CardTitle>
             </CardHeader>
             <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -123,9 +88,7 @@ export function ExpenseForm({ onAdd }: ExpenseFormProps) {
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="payer" className="text-base">
-                                {type === 'expense' ? '支払った人' : '返した人'}
-                            </Label>
+                            <Label htmlFor="payer" className="text-base">支払う人</Label>
                             <Select value={payer} onValueChange={(v) => setPayer(v as Payer)}>
                                 <SelectTrigger className="text-lg py-6">
                                     <SelectValue />
@@ -138,34 +101,32 @@ export function ExpenseForm({ onAdd }: ExpenseFormProps) {
                         </div>
                     </div>
 
-                    {type === 'expense' && (
-                        <div className="space-y-2">
-                            <Label className="text-base font-bold">内容</Label>
-                            <Select onValueChange={handlePresetSelect} value={isCustom ? '__custom__' : description}>
-                                <SelectTrigger className="text-lg py-6">
-                                    <SelectValue placeholder="選択してください" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {PRESET_ITEMS.map((item) => (
-                                        <SelectItem key={item.label} value={item.label}>
-                                            {item.label}（¥{item.amount.toLocaleString()}）
-                                        </SelectItem>
-                                    ))}
-                                    <SelectItem value="__custom__">✏️ その他（自由入力）</SelectItem>
-                                </SelectContent>
-                            </Select>
-                            {isCustom && (
-                                <Input
-                                    id="description"
-                                    placeholder="内容を入力"
-                                    value={description}
-                                    onChange={(e) => setDescription(e.target.value)}
-                                    required
-                                    className="text-lg py-6 mt-2"
-                                />
-                            )}
-                        </div>
-                    )}
+                    <div className="space-y-2">
+                        <Label className="text-base font-bold">内容</Label>
+                        <Select onValueChange={handlePresetSelect} value={isCustom ? '__custom__' : description}>
+                            <SelectTrigger className="text-lg py-6">
+                                <SelectValue placeholder="選択してください" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {PRESET_ITEMS.map((item) => (
+                                    <SelectItem key={item.label} value={item.label}>
+                                        {item.label}（¥{item.amount.toLocaleString()}）
+                                    </SelectItem>
+                                ))}
+                                <SelectItem value="__custom__">✏️ その他（自由入力）</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        {isCustom && (
+                            <Input
+                                id="description"
+                                placeholder="内容を入力"
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                                required
+                                className="text-lg py-6 mt-2"
+                            />
+                        )}
+                    </div>
 
                     <div className="space-y-2">
                         <Label htmlFor="price" className="text-base font-bold">金額</Label>
@@ -180,8 +141,8 @@ export function ExpenseForm({ onAdd }: ExpenseFormProps) {
                         />
                     </div>
 
-                    <Button type="submit" className={`w-full py-7 text-xl font-bold ${type === 'settlement' ? 'bg-green-600 hover:bg-green-700' : ''}`}>
-                        {type === 'expense' ? '支出を追加' : '返金を記録'}
+                    <Button type="submit" className="w-full py-7 text-xl font-bold">
+                        追加
                     </Button>
                 </form>
             </CardContent>
