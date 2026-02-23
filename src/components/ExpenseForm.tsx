@@ -58,7 +58,9 @@ export function ExpenseForm({ onAdd }: ExpenseFormProps) {
         if (!amount || (type === 'expense' && !description)) return;
 
         // プリセット → 清算（全額相手負担）として記録
+        // 選択した人が相手に支払う = payerを反転して記録
         const actualType = isPreset ? 'settlement' : type;
+        const actualPayer = isPreset ? (payer === 'ひろむ' ? 'ちか' : 'ひろむ') as Payer : payer;
 
         let finalDescription: string;
         if (isPreset) {
@@ -72,7 +74,7 @@ export function ExpenseForm({ onAdd }: ExpenseFormProps) {
         const newExpense: Expense = {
             id: crypto.randomUUID(),
             date,
-            payer,
+            payer: actualPayer,
             amount: Number(amount),
             description: finalDescription,
             type: actualType,
