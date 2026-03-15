@@ -68,9 +68,27 @@ export function ExpenseList({ expenses, onDelete, onClearAll }: ExpenseListProps
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <span className="font-bold text-xl">¥{Number(expense.amount).toLocaleString()}</span>
-                                    <Button variant="ghost" size="icon" className="h-10 w-10" onClick={() => onDelete(expense.id)}>
-                                        <Trash2 className="h-5 w-5 text-red-500" />
-                                    </Button>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                            <Button variant="ghost" size="icon" className="h-10 w-10">
+                                                <Trash2 className="h-5 w-5 text-red-500" />
+                                            </Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>履歴を削除しますか？</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                    「{expense.description}」の記録を削除します。
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>キャンセル</AlertDialogCancel>
+                                                <AlertDialogAction onClick={() => onDelete(expense.id)} className="bg-red-600 hover:bg-red-700 text-white">
+                                                    削除する
+                                                </AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
                                 </div>
                             </div>
                         ))

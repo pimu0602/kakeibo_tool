@@ -5,6 +5,8 @@ import { Expense } from '@/types';
 import { ExpenseForm } from '@/components/ExpenseForm';
 import { ExpenseList } from '@/components/ExpenseList';
 import { Summary } from '@/components/Summary';
+import Link from 'next/link';
+import { Settings } from 'lucide-react';
 
 export default function Home() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -45,13 +47,11 @@ export default function Home() {
   };
 
   const deleteExpense = async (id: string) => {
-    if (confirm('本当に削除しますか？')) {
-      try {
-        await fetch(`/api/expenses?id=${id}`, { method: 'DELETE' });
-        fetchExpenses();
-      } catch (error) {
-        alert('削除に失敗しました。');
-      }
+    try {
+      await fetch(`/api/expenses?id=${id}`, { method: 'DELETE' });
+      fetchExpenses();
+    } catch (error) {
+      alert('削除に失敗しました。');
     }
   };
 
@@ -70,23 +70,32 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gray-50 p-4 md:p-8 pb-20">
-      <div className="max-w-md mx-auto space-y-6">
+      <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold flex-1 text-center text-gray-800 ml-8">💰 割り勘ツール</h1>
+          <Link href="/settings" className="flex items-center gap-1 p-2 text-gray-600 hover:text-primary transition-colors" title="設定">
+            <Settings className="w-5 h-5" />
+            <span className="text-xs font-bold">設定</span>
+          </Link>
+          <h1 className="text-2xl font-bold flex-1 text-center text-gray-800">💰 割り勘ツール</h1>
           <button onClick={fetchExpenses} className="p-2 text-gray-500 hover:text-blue-500" title="更新">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" /><path d="M21 3v5h-5" /><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" /><path d="M3 21v-5h5" /></svg>
           </button>
         </div>
 
-        <Summary expenses={expenses} />
-        <ExpenseForm onAdd={addExpense} />
-        <ExpenseList expenses={expenses} onDelete={deleteExpense} onClearAll={clearAllExpenses} />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+          <div className="space-y-6">
+            <Summary expenses={expenses} />
+            <ExpenseForm onAdd={addExpense} />
+          </div>
+          <div className="lg:sticky lg:top-8">
+            <ExpenseList expenses={expenses} onDelete={deleteExpense} onClearAll={clearAllExpenses} />
+          </div>
+        </div>
 
         <div className="text-[10px] text-gray-400 text-center mt-8">
-          Last Check: {new Date().toLocaleString('ja-JP')} (Fix v4 applied)
+          Last Check: {new Date().toLocaleString('ja-JP')} (Fix v4 applied - Responsive)
         </div>
       </div>
     </main>
-
   );
 }

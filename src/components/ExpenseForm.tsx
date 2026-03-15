@@ -1,27 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Expense, Payer } from '@/types';
+import { Expense, Payer, ExpensePreset } from '@/types';
+import { supabase } from '@/lib/supabase';
 
-const PRESET_ITEMS = [
-    { label: 'シャンプー', amount: 2300 },
-    { label: '歯磨き', amount: 1199 },
-    { label: 'モットパウダー', amount: 3300 },
-    { label: '石鹸', amount: 700 },
-    { label: 'お茶', amount: 2520 },
-    { label: 'プロテクションサンスクリーン', amount: 4400 },
-    { label: 'プロテイン', amount: 4023 },
-    { label: '日焼け止め', amount: 3664 },
-    { label: '天恵ローション', amount: 9600 },
-    { label: 'ヒカリノシオ', amount: 985 },
-    { label: 'ワコナル', amount: 2657 },
-    { label: 'オサケデビューティー', amount: 1944 },
-    { label: 'トトクレ', amount: 3350 },
-    { label: 'トトスイ', amount: 3350 },
-];
+
 
 interface ExpenseFormProps {
     onAdd: (expense: Expense) => void;
@@ -33,6 +19,21 @@ export function ExpenseForm({ onAdd }: ExpenseFormProps) {
     const [description, setDescription] = useState('');
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
     const [isCustom, setIsCustom] = useState(false);
+    const [presets, setPresets] = useState<ExpensePreset[]>([]);
+
+    useEffect(() => {
+        const fetchPresets = async () => {
+            const { data, error } = await supabase
+                .from('expense_presets')
+                .select('*')
+                .order('order_index', { ascending: true });
+
+            if (!error && data) {
+                setPresets(data);
+            }
+        };
+        fetchPresets();
+    }, []);
 
     const handlePresetSelect = (value: string) => {
         if (value === '__custom__') {
@@ -42,7 +43,7 @@ export function ExpenseForm({ onAdd }: ExpenseFormProps) {
             return;
         }
         setIsCustom(false);
-        const preset = PRESET_ITEMS.find(p => p.label === value);
+        const preset = presets.find(p => p.label === value);
         if (preset) {
             setDescription(preset.label);
             setAmount(String(preset.amount));
@@ -108,8 +109,8 @@ export function ExpenseForm({ onAdd }: ExpenseFormProps) {
                                 <SelectValue placeholder="選択してください" />
                             </SelectTrigger>
                             <SelectContent>
-                                {PRESET_ITEMS.map((item) => (
-                                    <SelectItem key={item.label} value={item.label}>
+                                {presets.map((item) => (
+                                    <SelectItem key={item.id} value={item.label}>
                                         {item.label}（¥{item.amount.toLocaleString()}）
                                     </SelectItem>
                                 ))}

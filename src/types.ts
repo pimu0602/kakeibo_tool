@@ -8,3 +8,10 @@ export interface Expense {
   description: string;
   type?: 'expense' | 'settlement';
 }
+
+export interface ExpensePreset {
+  id: string;
+  label: string;
+  amount: number;
+  order_index: number;
+}
